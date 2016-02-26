@@ -12,6 +12,7 @@ from weblog import Weblog  # imports class defined in weblog.py
 
 
 class First50Join(MRJob):
+    SORT_VALUES = True
     def mapper(self, _, line):
         # Is this a weblog file, or a MaxMind GeoLite2 file?
         filename = mrjob.compat.jobconf_from_env("map.input.file")
@@ -57,11 +58,11 @@ class First50Join(MRJob):
     def reducer_final(self):
         """Output the lowest 50"""
         for (datetime, country, line) in self.lowest:
-            yield "CHANGEME", [CHANGEME]
+            yield "First50Geolocated", (datetime,country,line)
 
     # Let MapReduce do the sorting this time!
     # All of the keys are the same, so just take the first 50 values...
-    SORT_VALUES = True
+
 
     def first50reducer_init(self, key, value):
         self.counter = 0
@@ -71,8 +72,15 @@ class First50Join(MRJob):
         for (date, country, line) in values:
             if self.counter < 50:
                 self.counter += 1
-                yield key, [CHANGEME]
-
+                yield key, values
+    def steps(self):
+        return[
+            MRStep(mapper=self.mapper,
+                   reducer_init=self.recuder_init,
+                   reducer=self.reducer,
+                   reducer_final=self.reducer_final),
+            MRStep(reducer_init=self.first50reducer_init,
+                   reducer=self.first50reducer)]
 
 if __name__ == "__main__":
     First50Join.run()
