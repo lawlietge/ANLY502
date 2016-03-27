@@ -58,4 +58,5 @@ def logs(sc):
 # char_logs = fwiki.raw_logs(sc).filter(lambda line:"CHAR" in line)
 # char_df   = sqlCtx.createDataFrame(char_logs.map(fwiki.parse_apache_log))
 # char_df.cache()
+# char_df.registerTempTable("logs")
 # sqlCtx.sql("select count(*) from logs").collect()
