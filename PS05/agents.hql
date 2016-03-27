@@ -1,8 +1,9 @@
 SET mapred.input.dir.recursive=true;
 SET hive.mapred.supports.subdirectories=true;
-DROP TABLE IF EXISTS apache_common_log;
+SET hive.groupby.orderby.position.alias=true;
 
-CREATE EXTERNAL TABLE apache_common_log (
+DROP TABLE IF EXISTS raw_logs;
+CREATE EXTERNAL TABLE raw_logs (
   host STRING,
   identity STRING,
   user STRING,
@@ -20,5 +21,25 @@ WITH SERDEPROPERTIES (
 )
 STORED AS TEXTFILE
 LOCATION 's3://gu-anly502/ps05/forensicswiki/2012/';
+--LOCATION 's3://gu-anly502/ps05/forensicswiki/2012/12/';
 
+DROP TABLE IF EXISTS agent_logs;
+create temporary table agent_logs (
+  date  timestamp,
+  agent string,
+  os    string,
+  bot   boolean
+);
+
+insert overwrite table agent_logs
 -- YOUR CODE GOES HERE
+
+-- Section #1:
+select YOUR CODE GOES HERE
+
+-- Section #2: Provide 5 agents for which the OS could not be classified that are bots
+select YOUR CODE GOES HERE
+
+-- Section #3: Provide 5 agents for which the OS could not be classified that are not bots.
+select YOUR CODE GOES HERE
+

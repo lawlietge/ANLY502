@@ -1,22 +1,15 @@
-wordcount_shakespeare1.txt: wordcount_shakespeare1.pig
-	pig -x mapreduce -stop_on_failure $^ 
+botstats.raw: botstats.hql
+	beeline -u jdbc:hive2://localhost:10000 -n hadoop -p hadoop -f botstats.hql > botstats.raw
 
-wordcount_shakespeare2.txt: wordcount_shakespeare2.pig
-	pig -x mapreduce -stop_on_failure $^ 
+botstats.txt: botstats.raw
+	grep '^[|\+] 2012' botstats.raw > botstats.txt
 
-wordcount_shakespeare3.txt: wordcount_shakespeare3.pig
-	pig -x mapreduce -stop_on_failure $^ 
+botstats.pdf: botstats.txt
+	python2.7 botstats_plot.py
 
-forensicswiki_count_by_date.txt: forensicswiki_count_by_date.pig
-	pig -x mapreduce -stop_on_failure $^
+agents.raw: agents.hql
+	beeline -u jdbc:hive2://localhost:10000 -n hadoop -p hadoop -f agents.hql > agents.raw	
 
-forensicswiki_page_top20.pig: forensicswiki_count_by_date.txt
-	pig -x mapreduce -stop_on_failure $^
-
-wordcount_shakespeare4.txt: wordcount_shakespeare4.py
-	spark-submit $^
-
-wikipedia_by_month.txt: wikipedia_by_month.py
-	spark-submit $^
-
+agents.txt: agents.raw
+	grep '^[|\+]' agents.raw > agents.txt
 

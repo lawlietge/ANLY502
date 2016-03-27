@@ -1,8 +1,11 @@
+-- Set up config options based on documentation
+
 SET mapred.input.dir.recursive=true;
 SET hive.mapred.supports.subdirectories=true;
-DROP TABLE IF EXISTS apache_common_log;
+SET hive.groupby.orderby.position.alias=true;
 
-CREATE EXTERNAL TABLE apache_common_log (
+DROP TABLE IF EXISTS raw_logs;
+CREATE EXTERNAL TABLE raw_logs (
   host STRING,
   identity STRING,
   user STRING,
@@ -20,9 +23,36 @@ WITH SERDEPROPERTIES (
 )
 STORED AS TEXTFILE
 LOCATION 's3://gu-anly502/ps05/forensicswiki/2012/';
+--LOCATION 's3://gu-anly502/ps05/forensicswiki/2012/12/';
 
--- USE THIS LOCATION TO WORK WITH A SUBSET:
--- LOCATION 's3://gu-anly502/ps05/forensicswiki/2012/12/';
+DROP TABLE IF EXISTS bot_logs;
+create temporary table bot_logs (
+  date  timestamp,
+  size  bigint,
+  agent string,
+  bot   boolean
+);
 
--- YOUR CODE GOES HERE
+insert overwrite table bot_logs
+  select from_unixtime(unix_timestamp(rawdatetime, "[dd/MMM/yyyy:HH:mm:ss Z]")),
+         int(size),
+         agent,
+         instr(lower(agent),"bot")>0
+  from raw_logs;
+
+
+create temporary table bot_stats (
+  yearmonth string,
+  count bigint,
+  botcount bigint,
+  nonbotcount bigint,
+  size bigint,
+  botsize bigint,
+  nonbotsize bigint
+);
+
+insert overwrite table bot_stats
+YOUR CODE GOES HERE
+
+select yearmonth,botcount,nonbotcount from bot_stats order by yearmonth;
 
