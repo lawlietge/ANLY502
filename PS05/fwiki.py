@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 import pytest
-from pyspark import SparkContext
+from pyspark import SparkContext,HiveContext
 
 ################################################################
 ## Code for parsing Apache weblogs
@@ -51,9 +51,11 @@ def logs(sc):
     return sc.textFile("s3://gu-anly502/ps05/forensicswiki/2012/??/*").\
         map(lambda line:parse_apache_log(line))
 
-if __name__=="__main__":
-    sc = SparkContext( appName = 'forensicswikilogs' )
-    print("Here are some attack log files:")
-    attacks = raw_logs(sc).filter(lambda line:"UNION" in line).map(parse_apache_log).take(5)
-    for attack in attacks:
-        print(attack)
+#
+# try this from the command line:
+# ipyspark --py-files=fwiki.py
+# import fwiki
+# char_logs = fwiki.raw_logs(sc).filter(lambda line:"CHAR" in line)
+# char_df   = sqlCtx.createDataFrame(char_logs.map(fwiki.parse_apache_log))
+# char_df.cache()
+# sqlCtx.sql("select count(*) from logs").collect()
