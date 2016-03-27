@@ -28,7 +28,7 @@ class Validator:
         return False
 
     def build_zip(self,fname):
-        required_missing = 0
+        required_missing = set()
         print("Building {0}".format(fname))
         z = zipfile.ZipFile(fname,"w",zipfile.ZIP_DEFLATED)
         for fn in self.required.union(self.optional):
@@ -38,7 +38,7 @@ class Validator:
             else:
                 if fn in self.required:
                     msg = "REQUIRED FILE "
-                    required_missing += 1
+                    required_missing.add(fn)
                 else:
                     msg = ""
                 print("{0} Not found {1}...".format(msg, fn))
@@ -48,8 +48,10 @@ class Validator:
         call(['ls','-l',fname])
         print("\n")
         call(['unzip','-l',fname])
-        if required_missing > 0:
-            print("\n*** REQUIRED FILES MISSING: {0} ***".format(required_missing))
+        if required_missing:
+            print("\n*** REQUIRED FILES MISSING: {0} ***".format(len(required_missing)))
+            for fname in required_missing:
+                print("   {}".format(fname))
         exit(0)
 
     def validate_file(self,z,fname,hook):
