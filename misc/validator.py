@@ -14,7 +14,10 @@ class Validator:
         cfg.read(cfg_name)
         self.name = cfg.get("PS","name")
         self.required = set(cfg.get("PS","required_files").replace(","," ").split())
-        self.optional = set(cfg.get("PS","optional_files").replace(","," ").split())
+        try:
+            self.optional = set(cfg.get("PS","optional_files").replace(","," ").split())
+        except ConfigParser.NoOptionError:
+            self.optional = set()
 
     def fname(self):
         return self.name+".zip"
